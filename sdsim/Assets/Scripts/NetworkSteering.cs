@@ -48,6 +48,7 @@ public class NetworkSteering : MonoBehaviour {
 	public class ServerMessage
 	{
 		public float steering;
+		public float throttle;
 	}
 
 	public State state = State.UnConnected;
@@ -125,6 +126,7 @@ public class NetworkSteering : MonoBehaviour {
 		{
 			try
 			{
+
 				steeringMsg = JsonUtility.FromJson<ServerMessage>(str);
 
 			}
@@ -208,9 +210,13 @@ public class NetworkSteering : MonoBehaviour {
 		else if(state == State.ProcessSteering)
 		{
 			car.RequestSteering(steeringMsg.steering);
-
-			if(doConstantThrottle)
+			throttle = steeringMsg.throttle / (float)255.0;
+			if (throttle > 0)
 				car.RequestThrottle(throttle);
+			else
+				car.RequestFootBrake (throttle*(float)-1.0);
+			//if(doConstantThrottle)
+			//	car.RequestThrottle(throttle);
 
 			if(ai_steering != null)
 				ai_steering.text = string.Format("NN: {0}", steeringMsg.steering);
